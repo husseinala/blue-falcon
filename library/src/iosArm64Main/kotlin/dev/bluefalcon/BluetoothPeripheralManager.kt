@@ -1,6 +1,7 @@
 package dev.bluefalcon
 
 import platform.CoreBluetooth.*
+import platform.Foundation.NSData
 import platform.Foundation.NSError
 import platform.Foundation.NSNumber
 import platform.darwin.NSObject
@@ -29,9 +30,21 @@ actual class BluetoothPeripheralManager actual constructor(
     ) {
         if (blueFalcon.isScanning) {
             log("Discovered device ${didDiscoverPeripheral.name}")
-            val device = BluetoothPeripheral(didDiscoverPeripheral, rssiValue = RSSI.floatValue)
+
+            val serviceData = (advertisementData["kCBAdvDataServiceData"] as? Map<CBUUID, NSData>)
+                ?.mapKeys { it.key.UUIDString }
+                ?.mapValues { it.value.toByteArray() }
+
+            val device = BluetoothPeripheral(
+                bluetoothDevice = didDiscoverPeripheral,
+                rssiValue = RSSI.floatValue
+            )
+
             blueFalcon.delegates.forEach {
-                it.didDiscoverDevice(device)
+                it.didDiscoverDevice(
+                    bluetoothPeripheral = device,
+                    serviceData = serviceData
+                )
             }
         }
     }

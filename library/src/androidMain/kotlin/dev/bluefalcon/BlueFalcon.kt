@@ -219,7 +219,10 @@ actual class BlueFalcon actual constructor(
             result?.let { scanResult ->
                 scanResult.device?.let { device ->
                     delegates.forEach {
-                        it.didDiscoverDevice(BluetoothPeripheral(device))
+                        it.didDiscoverDevice(
+                            bluetoothPeripheral = BluetoothPeripheral(device),
+                            serviceData = scanResult.scanRecord?.serviceData?.mapKeys { it.key.uuid.toString() }
+                        )
                     }
                 }
             }

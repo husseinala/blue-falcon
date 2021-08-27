@@ -6,7 +6,10 @@ import kotlin.js.JsName
 interface BlueFalconDelegate {
 
     @JsName("didDiscoverDevice")
-    fun didDiscoverDevice(bluetoothPeripheral: BluetoothPeripheral)
+    fun didDiscoverDevice(
+        bluetoothPeripheral: BluetoothPeripheral,
+        serviceData: Map<String, ByteArray>?
+    )
     @JsName("didConnect")
     fun didConnect(bluetoothPeripheral: BluetoothPeripheral)
     @JsName("didDisconnect")

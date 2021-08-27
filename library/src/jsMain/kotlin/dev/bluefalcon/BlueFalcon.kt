@@ -53,7 +53,10 @@ actual class BlueFalcon actual constructor(context: ApplicationContext, serviceU
             .then { bluetoothDevice ->
                 val device = BluetoothPeripheral(bluetoothDevice)
                 delegates.forEach {
-                    it.didDiscoverDevice(device)
+                    it.didDiscoverDevice(
+                        bluetoothPeripheral = device,
+                        serviceData = null
+                    )
                 }
             }
     }

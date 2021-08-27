@@ -172,8 +172,15 @@ actual class BlueFalcon actual constructor(
             if (isScanning) {
                 log("Discovered device ${didDiscoverPeripheral.name}")
                 val device = BluetoothPeripheral(didDiscoverPeripheral, rssiValue = RSSI.floatValue)
+                val serviceData = (advertisementData["kCBAdvDataServiceData"] as? Map<CBUUID, NSData>)
+                    ?.mapKeys { it.key.UUIDString }
+                    ?.mapValues { it.value.toByteArray() }
+
                 delegates.forEach {
-                    it.didDiscoverDevice(device)
+                    it.didDiscoverDevice(
+                        bluetoothPeripheral = device,
+                        serviceData = serviceData
+                    )
                 }
             }
         }
