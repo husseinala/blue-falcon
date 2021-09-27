@@ -4,7 +4,9 @@ import platform.CoreBluetooth.*
 import platform.Foundation.*
 import platform.darwin.NSObject
 
-expect class BluetoothPeripheralManager(blueFalcon: BlueFalcon): CBCentralManagerDelegateProtocol, NSObject
+expect class BluetoothPeripheralManager(blueFalcon: BlueFalcon) : CBCentralManagerDelegateProtocol,
+    NSObject
+
 expect class PeripheralDelegate(blueFalcon: BlueFalcon)
 
 actual class BlueFalcon actual constructor(
@@ -73,7 +75,10 @@ actual class BlueFalcon actual constructor(
         bluetoothCharacteristic: BluetoothCharacteristic,
         notify: Boolean
     ) {
-        bluetoothPeripheral.bluetoothDevice.setNotifyValue(notify, bluetoothCharacteristic.characteristic)
+        bluetoothPeripheral.bluetoothDevice.setNotifyValue(
+            notify,
+            bluetoothCharacteristic.characteristic
+        )
     }
 
     actual fun indicateCharacteristic(
@@ -111,11 +116,11 @@ actual class BlueFalcon actual constructor(
         bluetoothCharacteristic: BluetoothCharacteristic,
         value: ByteArray,
         writeType: Int?
-    ){
+    ) {
         sharedWriteCharacteristic(
             bluetoothPeripheral,
             bluetoothCharacteristic,
-            NSString.create(string = value.decodeToString()),
+            value.toNSData(),
             writeType
         )
     }
@@ -127,15 +132,29 @@ actual class BlueFalcon actual constructor(
         writeType: Int?
     ) {
         value.dataUsingEncoding(NSUTF8StringEncoding)?.let {
-            bluetoothPeripheral.bluetoothDevice.writeValue(
+            sharedWriteCharacteristic(
+                bluetoothPeripheral,
+                bluetoothCharacteristic,
                 it,
-                bluetoothCharacteristic.characteristic,
-                when (writeType) {
-                    1 -> CBCharacteristicWriteWithoutResponse
-                    else -> CBCharacteristicWriteWithResponse
-                }
+                writeType
             )
         }
+    }
+
+    private fun sharedWriteCharacteristic(
+        bluetoothPeripheral: BluetoothPeripheral,
+        bluetoothCharacteristic: BluetoothCharacteristic,
+        value: NSData,
+        writeType: Int?
+    ) {
+        bluetoothPeripheral.bluetoothDevice.writeValue(
+            value,
+            bluetoothCharacteristic.characteristic,
+            when (writeType) {
+                1 -> CBCharacteristicWriteWithoutResponse
+                else -> CBCharacteristicWriteWithResponse
+            }
+        )
     }
 
     actual fun readDescriptor(
@@ -143,7 +162,9 @@ actual class BlueFalcon actual constructor(
         bluetoothCharacteristic: BluetoothCharacteristic,
         bluetoothCharacteristicDescriptor: BluetoothCharacteristicDescriptor
     ) {
-        bluetoothPeripheral.bluetoothDevice.discoverDescriptorsForCharacteristic(bluetoothCharacteristic.characteristic)
+        bluetoothPeripheral.bluetoothDevice.discoverDescriptorsForCharacteristic(
+            bluetoothCharacteristic.characteristic
+        )
     }
 
     actual fun changeMTU(bluetoothPeripheral: BluetoothPeripheral, mtuSize: Int) {
